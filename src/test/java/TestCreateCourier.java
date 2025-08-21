@@ -15,7 +15,7 @@ public class TestCreateCourier {
 
         private Courier courier;
         private CourierAccount courierAccount;
-        private int courierId;
+        private int courierId = 0;
 
 
         @Before
@@ -24,6 +24,15 @@ public class TestCreateCourier {
         courierAccount = new CourierAccount();
     }
 
+    @After
+    public void teardown() {
+        CourierCredentials creds = CourierCredentials.from(courier);
+        courierId = courierAccount.login(creds)
+                .statusCode(SC_OK)
+                .extract().path("id");
+
+        courierAccount.delete(courierId);
+    }
 
         @Test
         @DisplayName("Проверка успешного создания курьера")
@@ -34,11 +43,6 @@ public class TestCreateCourier {
                 .extract().path("ok");
         assertTrue(isOk);
 
-            CourierCredentials creds = CourierCredentials.from(courier);
-            courierId = courierAccount.login(creds)
-                    .statusCode(SC_OK)
-                    .extract().path("id");
-            courierAccount.delete(courierId);
     }
 
         @Test // Текст ошибки взял из спеки
@@ -87,11 +91,11 @@ public class TestCreateCourier {
                 .statusCode(SC_BAD_REQUEST)
                 .extract().path("message");
 
-        String expected = "Недостаточно данных для создания учетной записи";
+             String expected = "Недостаточно данных для создания учетной записи";
 
-        assertEquals("Должен быть текст,что данных недостаточно", expected, actual);
+             assertEquals("Должен быть текст,что данных недостаточно", expected, actual);
 
-    }
+         }
 
         @Test
         @DisplayName("Проверка создания курьера без имени")
@@ -101,12 +105,6 @@ public class TestCreateCourier {
                 .statusCode(SC_CREATED)
                 .extract().path("ok");
 
-        assertTrue(isOk);
-
-            CourierCredentials creds = CourierCredentials.from(courier);
-            courierId = courierAccount.login(creds)
-                    .statusCode(SC_OK)
-                    .extract().path("id");
-            courierAccount.delete(courierId);
-    }
-    }
+                assertTrue(isOk);
+        }
+}

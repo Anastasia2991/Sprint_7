@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import static org.apache.http.HttpStatus.*;
 
 
 import static org.junit.Assert.assertTrue;
@@ -48,7 +49,7 @@ public class TestCreateOrder {
         order.setColor(colors);
 
         track = orderData.createOrder(order)
-                .statusCode(201)
+                .statusCode(SC_CREATED)
                 .extract().path("track");
 
         assertTrue(track > 0);

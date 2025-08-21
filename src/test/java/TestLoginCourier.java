@@ -3,6 +3,7 @@ import io.qameta.allure.junit4.DisplayName;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import static org.apache.http.HttpStatus.*;
 
 
 import static org.junit.Assert.assertEquals;
@@ -17,14 +18,14 @@ public class TestLoginCourier {
     @Before
     public void setup(){
         courier = Courier.getRandomCourier();
-        courierAccount.create(courier).statusCode(201);
+        courierAccount.create(courier).statusCode(SC_CREATED);
     }
 
     @After
     public void teardown() {
         CourierCredentials creds = CourierCredentials.from(courier);
         courierId = courierAccount.login(creds)
-                .statusCode(200)
+                .statusCode(SC_OK)
                 .extract().path("id");
         courierAccount.delete(courierId);
     }
@@ -36,7 +37,7 @@ public class TestLoginCourier {
 
         CourierCredentials creds = CourierCredentials.from(courier);
         courierId = courierAccount.login(creds)
-                .statusCode(200)
+                .statusCode(SC_OK)
                 .extract().path("id");
 
         assertNotEquals(0, courierId);
@@ -49,7 +50,7 @@ public class TestLoginCourier {
 
         CourierCredentials creds = CourierCredentials.withoutLoginAttribute(courier);
         String actual = courierAccount.login(creds)
-                .statusCode(400)
+                .statusCode(SC_BAD_REQUEST)
                 .extract().path("message");
 
         String expected = "Недостаточно данных для входа";
@@ -63,7 +64,7 @@ public class TestLoginCourier {
 
         CourierCredentials creds = CourierCredentials.withoutPasswordAttribute(courier);
         String actual = courierAccount.login(creds)
-                .statusCode(400)
+                .statusCode(SC_BAD_REQUEST)
                 .extract().path("message");
 
         String expected = "Недостаточно данных для входа";
@@ -91,7 +92,7 @@ public class TestLoginCourier {
 
         CourierCredentials creds = CourierCredentials.withIncorrectPassword(courier);
         String actual = courierAccount.login(creds)
-                .statusCode(404)
+                .statusCode(SC_NOT_FOUND)
                 .extract().path("message");
 
         String expected = "Учетная запись не найдена";

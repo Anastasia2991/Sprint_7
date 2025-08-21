@@ -4,6 +4,7 @@ import io.qameta.allure.junit4.DisplayName;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import static org.apache.http.HttpStatus.*;
 
 
 import static org.junit.Assert.assertEquals;
@@ -29,13 +30,13 @@ public class TestCreateCourier {
         @Description("Создаем рандомного курьера и логинимся под ним")
         public void createCourier(){
         boolean isOk = courierAccount.create(courier)
-                .statusCode(201)
+                .statusCode(SC_CREATED)
                 .extract().path("ok");
         assertTrue(isOk);
 
             CourierCredentials creds = CourierCredentials.from(courier);
             courierId = courierAccount.login(creds)
-                    .statusCode(200)
+                    .statusCode(SC_OK)
                     .extract().path("id");
             courierAccount.delete(courierId);
     }
@@ -45,11 +46,11 @@ public class TestCreateCourier {
         @Description("Создаем одного курьера и сразу второго с такими же данными")
         public void createDuplicateCourier(){
         boolean isOk = courierAccount.create(courier)
-                .statusCode(201)
+                .statusCode(SC_CREATED)
                 .extract().path("ok");
 
         String actual = courierAccount.create(courier)
-                .statusCode(409)
+                .statusCode(SC_CONFLICT)
                 .extract().path("message");
 
         String expected = "Этот логин уже используется.";
@@ -66,7 +67,7 @@ public class TestCreateCourier {
         courier = Courier.getCourierWithoutLogin();
 
         String actual = courierAccount.create(courier)
-                .statusCode(400)
+                .statusCode(SC_BAD_REQUEST)
                 .extract().path("message");
 
         String expected = "Недостаточно данных для создания учетной записи";
@@ -83,7 +84,7 @@ public class TestCreateCourier {
         courier = Courier.getCourierWithoutPassword();
 
         String actual = courierAccount.create(courier)
-                .statusCode(400)
+                .statusCode(SC_BAD_REQUEST)
                 .extract().path("message");
 
         String expected = "Недостаточно данных для создания учетной записи";
@@ -97,14 +98,14 @@ public class TestCreateCourier {
         @Description("Отправляем запрос на создание курьера без атрибута имени")
         public void createCourierWithoutFirstName(){
         boolean isOk = courierAccount.create(courier)
-                .statusCode(201)
+                .statusCode(SC_CREATED)
                 .extract().path("ok");
 
         assertTrue(isOk);
 
             CourierCredentials creds = CourierCredentials.from(courier);
             courierId = courierAccount.login(creds)
-                    .statusCode(200)
+                    .statusCode(SC_OK)
                     .extract().path("id");
             courierAccount.delete(courierId);
     }
